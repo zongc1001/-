@@ -30,13 +30,13 @@ int main(int argc, char const *argv[])
         a[i].n = rand()*i;
         minHeap.push(a[i]);
     }
-    
+    a[1] = a[2];
     while(!minHeap.empty())
     {
         cout << minHeap.top().n << endl;
         minHeap.pop();
     }
-    
+
 
     
 

@@ -93,35 +93,13 @@ void HuffTree<CharType, WeightType>::creatCode(HuffNode<CharType, WeightType>* r
         creatCode(r->getRight(), code, len + 1);
     }
 }
-
-template <class CharType, class WeightType>
-struct HuffNodeHelp
-{
-    HuffNode<CharType, WeightType>* ptr;    //哈夫曼树节点的抽象基类指针
-};
-
-template <class CharType, class WeightType>
-bool operator < (const HuffNodeHelp<CharType, WeightType>& first, const HuffNodeHelp<CharType, WeightType>& second)
-{
-    return first.ptr->getWeight() < second.ptr->getWeight();
-}
-
-template <class CharType, class WeightType>
-bool operator > (const HuffNodeHelp<CharType, WeightType> &first, const HuffNodeHelp<CharType, WeightType> &second)
-{
-    return first.ptr->getWeight() > second.ptr->getWeight();
-}
-
-template <class CharType, class WeightType>
-bool operator <= (const HuffNodeHelp<CharType, WeightType> &first, const HuffNodeHelp<CharType, WeightType> &second)
-{
-    return first.ptr->getWeight() <= second.ptr->getWeight();
-};
-
 template <class CharType, class WeightType>
 struct CmpNode
 {
-    bool operator()(Huff)
+    bool operator()(HuffNode<CharType, WeightType> a, HuffNode<CharType, WeightType> b)
+    {
+        return a.getWeight() > b.getWeight();
+    }
 }
 
 template <class CharType, class WeightType>
@@ -130,13 +108,34 @@ HuffTree<CharType, WeightType>::HuffTree(CharType ch[], WeightType weight[], int
     this.CharIndex = CharIndex;
     num = n;
     charCodes = new String[num];
-    priority_queue<HuffNodeHelp<CharType, WeightType>, vector<HuffNodeHelp<CharType, WeightType>>, > minHeap;
+    priority_queue<HuffNode<CharType, WeightType>, vector<HuffNode<CharType, WeightType>>, CmpNode> minHeap;
     int i;
     for(i = 0; i < num;i++)
     {
-        HuffNodeHelp<CharType, WeightType> temp;
-        temp.ptr = new LeafNode<CharType, WeightType>(ch[i], weight[i]);
+        LeafNode<CharType, WeightType> temp(ch[i], weight[i]);
         minHeap.push(temp);
-
     }
+
+    for(i = 0; i < num-1; i++)
+    {
+        LeafNode<CharType, WeightType> r, r1, r2;
+        r1 = minHeap.top();
+        minHeap.pop();
+        r2 = minHeap.top();
+        minHeap.pop();
+        LeafNode<CharType, WeightType> r(IntlNode<CharType, WeightType>(r1.getWeight() + r2.getWeight(),
+            r1, r2));
+        minHeap.push(r);
+    }
+    IntlNode<CharType, WeightType> rt;
+    rt = minHeap.top();
+    minHeap.pop();
+    root = &rt;
+    pCurNode = root;
+    char* code = new char[num];
+    CreatCode(root, code);
+    delete[] code;
+
+
 }
+
